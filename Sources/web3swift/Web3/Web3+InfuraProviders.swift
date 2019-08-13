@@ -38,7 +38,7 @@ public final class InfuraProvider: Web3HttpProvider {
 }
 
 /// Custom Websocket provider of Infura nodes.
-public final class InfuraWebsocketProvider: WebsocketProvider {
+open class InfuraWebsocketProvider: WebsocketProvider {
     public var filterID: String?
     public var subscriptionIDs = Set<String>()
     private var subscriptionIDforUnsubscribing: String? = nil

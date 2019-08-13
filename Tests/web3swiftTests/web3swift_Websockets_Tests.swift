@@ -38,6 +38,12 @@ class SpyDelegate: Web3SocketDelegate {
     func gotError(error: Error) {
         XCTFail(error.localizedDescription)
     }
+    func didConnect() {
+        
+    }
+    func didDisconnect(with error: Error?) {
+        
+    }
 }
 
 class web3swift_websocket_Tests: XCTestCase {
