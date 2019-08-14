@@ -83,7 +83,7 @@ open class InfuraWebsocketProvider: WebsocketProvider {
                    keystoreManager: manager)
     }
     
-    override public class func connectToSocket(_ endpoint: String,
+    override open class func connectToSocket(_ endpoint: String,
                                                delegate: Web3SocketDelegate,
                                                projectId: String? = nil,
                                                keystoreManager manager: KeystoreManager? = nil,
@@ -96,7 +96,7 @@ open class InfuraWebsocketProvider: WebsocketProvider {
         return socketProvider
     }
     
-    override public class func connectToSocket(_ endpoint: URL,
+    override open class func connectToSocket(_ endpoint: URL,
                                                delegate: Web3SocketDelegate,
                                                projectId: String? = nil,
                                                keystoreManager manager: KeystoreManager? = nil,
