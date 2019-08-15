@@ -273,6 +273,8 @@ open class WebsocketProvider: Web3Provider, IWebsocketProvider, WebSocketDelegat
             for d in messagesDataToWrite {
                 socket.write(data: d)
             }
+            messagesStringToWrite = []
+            messagesDataToWrite = []
         }
     }
     
