@@ -255,6 +255,13 @@ public struct EventFilterParameters: Codable {
     public var toBlock: String?
     public var topics: [[String?]?]?
     public var address: [String?]?
+    
+    public init (fromBlock: String? = nil, toBlock: String? = nil, topics: [[String?]?]? = nil, address: [String?]? = nil) {
+        self.fromBlock = fromBlock
+        self.toBlock = toBlock
+        self.topics = topics
+        self.address = address
+    }
 }
 
 /// Raw JSON RCP 2.0 internal flattening wrapper.

@@ -88,10 +88,12 @@ public struct InfuraWebsocketRequest: Encodable {
 public protocol Web3SocketDelegate {
     func received(message: Any)
     func gotError(error: Error)
+    func didConnect()
+    func didDisconnect(with error: Error?)
 }
 
 /// The default websocket provider.
-public class WebsocketProvider: Web3Provider, IWebsocketProvider, WebSocketDelegate {
+open class WebsocketProvider: Web3Provider, IWebsocketProvider, WebSocketDelegate {
     public func sendAsync(_ request: JSONRPCrequest, queue: DispatchQueue) -> Promise<JSONRPCresponse> {
         return Promise(error: Web3Error.inputError(desc: "Sending is unsupported for Websocket provider. Please, use \'sendMessage\'"))
     }
@@ -112,7 +114,7 @@ public class WebsocketProvider: Web3Provider, IWebsocketProvider, WebSocketDeleg
     public var socket: WebSocket
     public var delegate: Web3SocketDelegate
     
-    private var websocketConnected: Bool = false
+    private(set) var websocketConnected: Bool = false
     private var writeTimer: Timer? = nil
     private var messagesStringToWrite: [String] = []
     private var messagesDataToWrite: [Data] = []
@@ -202,17 +204,17 @@ public class WebsocketProvider: Web3Provider, IWebsocketProvider, WebSocketDeleg
         writeTimer?.invalidate()
     }
     
-    public func connectSocket() {
+    open func connectSocket() {
         writeTimer?.invalidate()
         socket.connect()
     }
     
-    public func disconnectSocket() {
+    open func disconnectSocket() {
         writeTimer?.invalidate()
         socket.disconnect()
     }
     
-    public class func connectToSocket(_ endpoint: String,
+    open class func connectToSocket(_ endpoint: String,
                                       delegate: Web3SocketDelegate,
                                       projectId: String? = nil,
                                       keystoreManager manager: KeystoreManager? = nil,
@@ -228,7 +230,7 @@ public class WebsocketProvider: Web3Provider, IWebsocketProvider, WebSocketDeleg
         return socketProvider
     }
     
-    public class func connectToSocket(_ endpoint: URL,
+    open class func connectToSocket(_ endpoint: URL,
                                       delegate: Web3SocketDelegate,
                                       projectId: String? = nil,
                                       keystoreManager manager: KeystoreManager? = nil,
@@ -244,7 +246,7 @@ public class WebsocketProvider: Web3Provider, IWebsocketProvider, WebSocketDeleg
         return socketProvider
     }
     
-    public func writeMessage<T>(_ message: T) {
+    open func writeMessage<T>(_ message: T) {
         var sMessage: String? = nil
         var dMessage: Data? = nil
         if !(message.self is String) && !(message.self is Data) {
@@ -271,30 +273,34 @@ public class WebsocketProvider: Web3Provider, IWebsocketProvider, WebSocketDeleg
             for d in messagesDataToWrite {
                 socket.write(data: d)
             }
+            messagesStringToWrite = []
+            messagesDataToWrite = []
         }
     }
     
-    public func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
+    open func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
         print("got some text: \(text)")
         delegate.received(message: text)
     }
     
-    public func websocketDidReceiveData(socket: WebSocketClient, data: Data) {
+    open func websocketDidReceiveData(socket: WebSocketClient, data: Data) {
         print("got some data: \(data.count)")
         delegate.received(message: data)
     }
     
-    public func websocketDidConnect(socket: WebSocketClient) {
+    open func websocketDidConnect(socket: WebSocketClient) {
         print("websocket is connected")
         websocketConnected = true
+        delegate.didConnect()
     }
     
-    public func websocketDidDisconnect(socket: WebSocketClient, error: Error?) {
+    open func websocketDidDisconnect(socket: WebSocketClient, error: Error?) {
         print("websocket is disconnected with \(error?.localizedDescription ?? "no error")")
         websocketConnected = false
+        delegate.didDisconnect(with: error)
     }
     
-    public func websocketDidReceivePong(socket: WebSocketClient, data: Data?) {
+    open func websocketDidReceivePong(socket: WebSocketClient, data: Data?) {
         print("Got pong! Maybe some data: \(String(describing: data?.count))")
     }
 }

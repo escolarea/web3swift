@@ -29,9 +29,12 @@ public class Web3HttpProvider: Web3Provider {
         let urlSession = URLSession(configuration: config)
         return urlSession
     }()
-    public init?(_ httpProviderURL: URL, network net: Networks? = nil, keystoreManager manager: KeystoreManager? = nil) {
+    public init?(_ httpProviderURL: URL, sessionDelegate: URLSessionDelegate? = nil, network net: Networks? = nil, keystoreManager manager: KeystoreManager? = nil) {
         do {
             guard httpProviderURL.scheme == "http" || httpProviderURL.scheme == "https" else {return nil}
+            if let delegate = sessionDelegate {
+                session = URLSession.init(configuration: .default, delegate: sessionDelegate, delegateQueue: nil)
+            }
             url = httpProviderURL
             if net == nil {
                 let request = JSONRPCRequestFabric.prepareRequest(.getNetwork, parameters: [])

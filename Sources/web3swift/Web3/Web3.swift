@@ -14,6 +14,7 @@ public enum Web3Error: Error {
     case inputError(desc:String)
     case nodeError(desc:String)
     case processingError(desc:String)
+    case securityError(desc:String)
     case keystoreError(err:AbstractKeystoreError)
     case generalError(err:Error)
     case unknownError
@@ -35,6 +36,8 @@ public enum Web3Error: Error {
             return desc
         case .processingError(let desc):
             return desc
+        case .securityError(let desc):
+            return desc
         case .keystoreError(let err):
             return err.localizedDescription
         case .generalError(let err):
@@ -53,6 +56,13 @@ public struct Web3 {
     /// the Network ID for EIP155 purposes
     public static func new(_ providerURL: URL) throws -> web3 {
         guard let provider = Web3HttpProvider(providerURL) else {
+            throw Web3Error.inputError(desc: "Wrong provider - should be Web3HttpProvider with endpoint scheme http or https")
+        }
+        return web3(provider: provider)
+    }
+    
+    public static func new(_ providerURL: URL, sessionDelegate: URLSessionDelegate) throws -> web3 {
+        guard let provider = Web3HttpProvider(providerURL, sessionDelegate: sessionDelegate) else {
             throw Web3Error.inputError(desc: "Wrong provider - should be Web3HttpProvider with endpoint scheme http or https")
         }
         return web3(provider: provider)

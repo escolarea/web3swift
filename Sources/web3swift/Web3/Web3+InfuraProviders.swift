@@ -38,7 +38,7 @@ public final class InfuraProvider: Web3HttpProvider {
 }
 
 /// Custom Websocket provider of Infura nodes.
-public final class InfuraWebsocketProvider: WebsocketProvider {
+open class InfuraWebsocketProvider: WebsocketProvider {
     public var filterID: String?
     public var subscriptionIDs = Set<String>()
     private var subscriptionIDforUnsubscribing: String? = nil
@@ -83,7 +83,7 @@ public final class InfuraWebsocketProvider: WebsocketProvider {
                    keystoreManager: manager)
     }
     
-    override public class func connectToSocket(_ endpoint: String,
+    override open class func connectToSocket(_ endpoint: String,
                                                delegate: Web3SocketDelegate,
                                                projectId: String? = nil,
                                                keystoreManager manager: KeystoreManager? = nil,
@@ -96,7 +96,7 @@ public final class InfuraWebsocketProvider: WebsocketProvider {
         return socketProvider
     }
     
-    override public class func connectToSocket(_ endpoint: URL,
+    override open class func connectToSocket(_ endpoint: URL,
                                                delegate: Web3SocketDelegate,
                                                projectId: String? = nil,
                                                keystoreManager manager: KeystoreManager? = nil,
@@ -242,7 +242,7 @@ public final class InfuraWebsocketProvider: WebsocketProvider {
         try writeMessage(method: method, params: params)
     }
     
-    override public func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
+    override open func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
         if let data = text.data(using: String.Encoding.utf8),
             let dictionary = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
             if filterID == nil,

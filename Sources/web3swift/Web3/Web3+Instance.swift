@@ -38,6 +38,11 @@ public class web3 {
     
     var ethInstance: web3.Eth?
     
+    public func didFailTask(for task: URLSessionTask, with errorDescription: String? = nil) {
+        guard let httpProvider = self.provider as? Web3HttpProvider else { return }
+        httpProvider.rejectPromise(for: task, with: errorDescription)
+    }
+    
     /// Public web3.eth.* namespace.
     public var eth: web3.Eth {
         if (self.ethInstance != nil) {
