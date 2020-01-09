@@ -9,6 +9,11 @@ import PromiseKit
 
 extension Web3HttpProvider {
     
+    private static var promiseMapping: [URLSessionTask: (promise: Promise<Data>, resolver: Resolver<Data>)] = [:]
+    var pendingPromises: [URLSessionTask: (promise: Promise<Data>, resolver: Resolver<Data>)] {
+        get {return Web3HttpProvider.self.promiseMapping}
+    }
+    
     static func post(_ request: JSONRPCrequest, providerURL: URL, queue: DispatchQueue = .main, session: URLSession) -> Promise<JSONRPCresponse> {
         let rp = Promise<Data>.pending()
         var task: URLSessionTask? = nil
@@ -37,6 +42,9 @@ extension Web3HttpProvider {
                     rp.resolver.fulfill(data!)
                 }
                 task?.resume()
+                if let currentTask = task {
+                    promiseMapping[currentTask] = rp
+                }
             } catch {
                 rp.resolver.reject(error)
             }
@@ -80,6 +88,9 @@ extension Web3HttpProvider {
                     rp.resolver.fulfill(data!)
                 }
                 task?.resume()
+                if let currentTask = task {
+                    promiseMapping[currentTask] = rp
+                }
             } catch {
                 rp.resolver.reject(error)
             }
@@ -92,6 +103,12 @@ extension Web3HttpProvider {
                 let parsedResponse = try JSONDecoder().decode(JSONRPCresponseBatch.self, from: data)
                 return parsedResponse
         }
+    }
+    
+    public func rejectPromise(for task: URLSessionTask, with errorDescription:String? = nil) {
+        guard let promise = self.pendingPromises[task] else { return }
+        promise.resolver.reject(Web3Error.securityError(desc: errorDescription ?? "Promise Rejected From Delegate"))
+        task.cancel()
     }
     
     public func sendAsync(_ request: JSONRPCrequest, queue: DispatchQueue = .main) -> Promise<JSONRPCresponse> {
